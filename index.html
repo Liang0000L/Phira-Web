@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f7f5" />
+    <meta name="description" content="浏览并下载 Phira 谱面，查询账号与排行榜数据" />
+    <title>Phira Web - 谱面库</title>
+    <link rel="preconnect" href="https://phira.5wyxi.com" />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="src/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳至主要内容</a>
+    <header class="topbar">
+      <a class="wordmark" href="#charts" aria-label="Phira Web 首页"><span class="wordmark-mark">P</span><span>PHIRA<span class="wordmark-light"> / WEB</span></span></a>
+      <div class="topbar-right">
+        <span class="connection"><span class="connection-dot"></span>服务已连接</span>
+        <button class="icon-button mobile-menu-button" id="mobile-menu" aria-label="打开导航" title="打开导航">☰</button>
+        <button class="account-button" id="account-button"><span class="account-avatar">访</span><span id="account-label">登录</span></button>
+      </div>
+    </header>
+
+    <div class="shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-label">工作区</div>
+        <nav class="primary-nav" aria-label="主要导航">
+          <button class="nav-item active" data-view="charts"><span class="nav-icon">◫</span>谱面库<span class="nav-count" id="chart-count">—</span></button>
+          <button class="nav-item" data-view="favorites"><span class="nav-icon">♡</span>收藏夹</button>
+          <button class="nav-item" data-view="account"><span class="nav-icon">◎</span>我的账户</button>
+        </nav>
+        <div class="sidebar-rule"></div>
+        <div class="sidebar-label">浏览</div>
+        <button class="nav-item" id="popular-link"><span class="nav-icon">↗</span>热门谱面</button>
+        <div class="sidebar-foot"><span class="status-mark"></span><span>Phira API</span><span class="sidebar-foot-host">phira.5wyxi.com</span></div>
+      </aside>
+
+      <main id="main" tabindex="-1">
+        <section class="view active" id="charts-view" aria-labelledby="page-title">
+          <div class="page-heading">
+            <div><p class="eyebrow">LIBRARY / 01</p><h1 id="page-title">谱面库</h1><p class="page-subtitle">浏览社区谱面，查看详情与排名。</p></div>
+            <div class="heading-meta"><span id="result-count">正在载入…</span><span class="heading-divider"></span><span>Phira 社区</span></div>
+          </div>
+          <div class="toolbar">
+            <label class="search-box"><span class="search-icon">⌕</span><input id="search" type="search" placeholder="搜索曲名、作者或谱师" autocomplete="off" /><kbd>/</kbd></label>
+            <label class="select-control"><span>排序</span><select id="order"><option value="-updated">最近更新</option><option value="-rating">社区评分</option><option value="-difficulty">难度优先</option><option value="name">曲名 A-Z</option></select></label>
+            <label class="select-control type-control"><span>分类</span><select id="type"><option value="-1">全部谱面</option><option value="0">Ranked</option><option value="1">Special</option><option value="2">Unstable</option></select></label>
+            <button class="filter-button" id="reset-filters" title="清除筛选">清除</button>
+          </div>
+          <div class="active-filters" id="active-filters"></div>
+          <div class="chart-grid" id="chart-grid" aria-live="polite"></div>
+          <div class="empty-state hidden" id="empty-state"><div class="empty-glyph">⌕</div><h2>没有找到谱面</h2><p>试试其他关键词，或调整筛选条件。</p><button class="text-button" id="empty-reset">清除筛选 <span>→</span></button></div>
+          <div class="pagination"><span id="page-indicator">第 1 页</span><div><button id="page-prev" class="pager-button" aria-label="上一页" disabled>←</button><button id="page-next" class="pager-button" aria-label="下一页">→</button></div></div>
+        </section>
+
+        <section class="view" id="favorites-view" aria-labelledby="favorites-title">
+          <div class="page-heading"><div><p class="eyebrow">YOUR PICKS / 02</p><h1 id="favorites-title">收藏夹</h1><p class="page-subtitle" id="favorites-subtitle">将喜欢的谱面收在一起。</p></div><button class="primary-button hidden" id="create-collection">＋ 新建收藏夹</button></div>
+          <div id="collection-picker" class="collection-picker"></div>
+          <div class="chart-grid" id="favorite-grid"></div>
+          <div class="empty-state hidden" id="favorites-empty"><div class="empty-glyph">♡</div><h2>还没有收藏</h2><p>在谱面上点按收藏，将它留在这里。</p><button class="text-button" data-view="charts">浏览谱面库 <span>→</span></button></div>
+        </section>
+
+        <section class="view" id="account-view" aria-labelledby="account-title">
+          <div class="page-heading"><div><p class="eyebrow">PROFILE / 03</p><h1 id="account-title">我的账户</h1><p class="page-subtitle">登录后同步收藏夹与个人成绩。</p></div></div>
+          <div id="account-content" class="account-content"></div>
+        </section>
+
+        <section class="view detail-view" id="detail-view" aria-labelledby="detail-title">
+          <button class="back-button" id="detail-back">← <span>返回谱面库</span></button>
+          <div id="detail-content"></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="login-dialog" class="dialog">
+      <form id="login-form" method="dialog">
+        <div class="dialog-heading"><div><p class="eyebrow">PHIRA ACCOUNT</p><h2 id="login-title">登录账户</h2></div><button class="icon-button" value="cancel" aria-label="关闭">×</button></div>
+        <label class="field-label" for="email">邮箱</label><input class="text-input" id="email" name="email" type="email" autocomplete="username" required />
+        <label class="field-label" for="password">密码</label><input class="text-input" id="password" name="password" type="password" autocomplete="current-password" required />
+        <p class="form-error" id="login-error" role="alert"></p>
+        <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-login">取消</button><button class="primary-button" type="submit" id="login-submit">登录</button></div>
+        <p class="privacy-note">凭证仅发送至 Phira API，不会由本网站服务器接收。</p>
+      </form>
+    </dialog>
+
+    <dialog id="collection-dialog" class="dialog">
+      <form id="collection-form" method="dialog">
+        <div class="dialog-heading"><div><p class="eyebrow">NEW COLLECTION</p><h2>新建收藏夹</h2></div><button class="icon-button" value="cancel" aria-label="关闭">×</button></div>
+        <label class="field-label" for="collection-name">名称</label><input class="text-input" id="collection-name" required maxlength="60" />
+        <label class="field-label" for="collection-description">描述</label><textarea class="text-input textarea" id="collection-description" rows="3" maxlength="240"></textarea>
+        <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-collection">取消</button><button class="primary-button" type="submit">创建</button></div>
+      </form>
+    </dialog>
+
+    <div class="toast-region" id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+    <footer class="site-footer"><span>Phira Web</span><span>独立社区网页 · 非官方</span><a href="https://muimi.club/phira-api/" target="_blank" rel="noreferrer">API 文档 ↗</a></footer>
+  </body>
+</html>
